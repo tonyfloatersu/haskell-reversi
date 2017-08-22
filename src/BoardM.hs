@@ -1,2 +1,4 @@
-module BoardM () where
+module BoardM where
+
+import           BasicM
 

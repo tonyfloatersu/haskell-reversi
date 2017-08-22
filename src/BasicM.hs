@@ -1,5 +1,8 @@
 module BasicM where
 
+size :: Int
+size    = 8
+
 data Player = Computer | Human
             deriving ( Eq, Enum )
 
@@ -7,7 +10,10 @@ instance Show Player where
     show p    = [ "AI", "Human" ] !! fromEnum p
 
 data Color = Black | White | NULL
-           deriving ( Eq, Enum, Show )
+           deriving ( Eq, Enum )
+
+instance Show Color where
+    show c    = ["x", "o", " "] !! fromEnum c
 
 negnate :: Color -> Color
 negnate c | c == White    = Black
@@ -27,3 +33,9 @@ instance Show Hand where
                                                          , const ", "
                                                          , show . snd ] <*> [l])
                                           ++ ", " ++ show c ++ ")"
+
+prompt :: String -> (String -> Bool) -> IO String
+prompt command judgef    = putStrLn command >> getLine >>=
+                           \x -> if judgef x
+                                 then return x
+                                 else prompt command judgef
