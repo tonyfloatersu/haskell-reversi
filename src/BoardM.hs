@@ -2,6 +2,8 @@ module BoardM where
 
 import           BasicM
 import           Control.Monad.ST
+import qualified Data.Map as M
+import qualified Data.List as L
 
 type Block = Hand
 
