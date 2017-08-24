@@ -16,7 +16,7 @@ data Color = White | Black | NULL | Next
              deriving ( Eq, Enum )
 
 instance Show Color where
-    show c    = [ "O", "X", "#", "*" ] !! fromEnum c
+    show c    = [ "O", "X", " ", "*" ] !! fromEnum c
 
 negnate :: Color -> Color
 negnate c | c == White    = Black

@@ -15,11 +15,10 @@ boardLine :: String
 boardLine    = "+---+---+---+---+---+---+---+---+\n"
 
 instance Show Line where
-    show (Line b)    = concat ((\Hand { loc = _, clr = c } -> "| " ++ show c ++ " ") <$> b)
-                       ++ "|\n"
+    show (Line b)    = (b >>= \Hand { loc = _, clr = c } -> "| " ++ show c ++ " ") ++ "|\n"
 
 instance Show Board where
-    show (Board l)    = concat ((\x -> boardLine ++ show x) <$> l) ++ boardLine
+    show (Board l)    = (l >>= \x -> boardLine ++ show x) ++ boardLine
 
 {- just used for test, not for real usage -}
 
