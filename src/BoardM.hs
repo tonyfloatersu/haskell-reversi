@@ -12,7 +12,7 @@ newtype Line = Line [Block]
 newtype Board = Board [Line]
 
 boardLine :: String
-boardLine    = "+---+---+---+---+---+---+---+---+\n"
+boardLine    = ([1 :: Int .. 8] >>= const "+---") ++ "+\n"
 
 instance Show Line where
     show (Line b)    = (b >>= \Hand { loc = _, clr = c } -> "| " ++ show c ++ " ") ++ "|\n"
