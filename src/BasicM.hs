@@ -33,9 +33,9 @@ instance Eq Hand where
     Hand { loc = l1, clr = c1 } == Hand { loc = l2, clr = c2 }    = l1 == l2 && c1 == c2
 
 instance Show Hand where
-    show Hand { loc = l, clr = c }    = "(" ++ concat ([ show . fst
-                                                       , const ", "
-                                                       , show . snd ] <*> [l])
+    show Hand { loc = l, clr = c }    = "(" ++ ([ show . fst
+                                                , const ", "
+                                                , show . snd ] >>= ($ l))
                                         ++ ", " ++ show c ++ ")"
 
 prompt :: String -> (String -> Bool) -> IO String
