@@ -73,17 +73,20 @@ type Human2Hands = Hands
 
 data Operations = Oper Hands Hands
 
+{- we add new steps at front and remove new steps at front -}
+
 showOpS :: Int -> Operations -> String
 showOpS n (Oper h a) | null h && null a    = []
                      | null h              = "step " ++ show n ++ "\t\t"
-                                             ++ "\t\t" ++ (showH . head) a ++ "\n"
-                                             ++ showOpS (n + 1) (Oper h (tail a))
+                                             ++ "\t\t" ++ (showH . last) a ++ "\n"
+                                             ++ showOpS (n + 1) (Oper h (init a))
                      | null a              = "step " ++ show n ++ "\t\t"
-                                             ++ (showH . head) h ++ "\t\t\n"
-                                             ++ showOpS (n + 1) (Oper (tail h) a)
+                                             ++ (showH . last) h ++ "\t\t\n"
+                                             ++ showOpS (n + 1) (Oper (init h) a)
                      | otherwise           = "step " ++ show n ++ "\t\t"
-                                             ++ (showH . head) h ++ "\t\t" ++ (showH . head) a
-                                             ++ "\n" ++ showOpS (n + 1) (Oper (tail h) (tail a))
+                                             ++ (showH . last) h ++ "\t\t"
+                                             ++ (showH . last) a ++ "\n"
+                                             ++ showOpS (n + 1) (Oper (init h) (init a))
 
 instance Show Operations where
     show (Oper h a)    = "\t\t\tP1\t\t\t\tP2\n" ++ showOpS 0 (Oper (reverse h) (reverse a))
