@@ -12,7 +12,7 @@ newtype Line = Line [Block]
 newtype Board = Board [Line]
 
 boardLine :: String
-boardLine    = ([1 :: Int .. 8] >>= const "+---") ++ "+\n"
+boardLine    = ([ 1 :: Int .. 8 ] >>= const "+---") ++ "+\n"
 
 showL :: Maybe Hand -> String
 showL (Just Hand { loc = _, clr = c })    = show c
@@ -25,9 +25,6 @@ instance Show Board where
     show (Board l)    = (l >>= \x -> boardLine ++ show x) ++ boardLine
 
 {- just used for test, not for real usage -}
-
-whiteLine :: Line
-whiteLine    = Line $ replicate size $ Just Hand { loc = (1, 2), clr = White }
 
 blankLine :: Line
 blankLine    = Line $ replicate size Nothing
