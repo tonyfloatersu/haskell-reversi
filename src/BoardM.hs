@@ -5,7 +5,7 @@ import           Control.Monad.ST
 import qualified Data.Map as M
 import qualified Data.List as L
 
-type Block = Hand
+type Block = Maybe Hand
 
 newtype Line = Line [Block]
 
@@ -14,16 +14,23 @@ newtype Board = Board [Line]
 boardLine :: String
 boardLine    = ([1 :: Int .. 8] >>= const "+---") ++ "+\n"
 
+showL :: Maybe Hand -> String
+showL (Just Hand { loc = _, clr = c })    = show c
+showL _                                   = " "
+
 instance Show Line where
-    show (Line b)    = (b >>= \Hand { loc = _, clr = c } -> "| " ++ show c ++ " ") ++ "|\n"
+    show (Line b)    = (b >>= \c -> "| " ++ showL c ++ " ") ++ "|\n"
 
 instance Show Board where
     show (Board l)    = (l >>= \x -> boardLine ++ show x) ++ boardLine
 
 {- just used for test, not for real usage -}
 
+whiteLine :: Line
+whiteLine    = Line $ replicate size $ Just Hand { loc = (1, 2), clr = White }
+
 blankLine :: Line
-blankLine    = Line $ replicate size Hand { loc = (1, 2), clr = NULL }
+blankLine    = Line $ replicate size Nothing
 
 blankBoard :: Board
 blankBoard    = Board $ replicate size blankLine

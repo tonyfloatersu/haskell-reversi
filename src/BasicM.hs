@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module BasicM where
 
 size :: Int
@@ -12,17 +14,16 @@ instance Show PVEPlayer where
 data PVPPlayer = Human1 | Human2
                deriving ( Eq, Enum, Show )
 
-data Color = White | Black | NULL | Next
+data Color = White | Black | Next
              deriving ( Eq, Enum )
 
 instance Show Color where
-    show c    = [ "O", "X", " ", "*" ] !! fromEnum c
+    show c    = [ "O", "X", "*" ] !! fromEnum c
 
 negnate :: Color -> Color
 negnate c | c == White    = Black
-          | c == NULL     = NULL
-          | c == Next     = Next
-          | otherwise     = White
+          | c == Black    = White
+          | otherwise     = Next
 
 type Location = ( Int, Int )
 
@@ -37,6 +38,10 @@ instance Show Hand where
                                                 , const ", "
                                                 , show . snd ] >>= ($ l))
                                         ++ ", " ++ show c ++ ")"
+
+showH :: Maybe Hand -> String
+showH (Just h)    = show h
+showH _           = " "
 
 prompt :: String -> (String -> Bool) -> IO String
 prompt command judgef    = putStrLn command >> getLine >>=
@@ -56,7 +61,7 @@ noChooseHint    = "\nIn PVP mode you need to decide who goes first; \
 
 {- we insert new hands into the front -}
 
-type Hands = [Hand]
+type Hands = [Maybe Hand]
 
 type HumanHands = Hands
 
@@ -68,19 +73,20 @@ type Human2Hands = Hands
 
 data Operations = Oper Hands Hands
 
-{- Let the empty hand for no place to go as ((-1, -1), #) -}
-
-showOp :: Operations -> String
-showOp (Oper h a) | null h && null a    = []
-                  | null h              = "\t\t" ++ (show . head) a ++ "\n"
-                                          ++ showOp (Oper h (tail a))
-                  | null a              = (show . head) h ++ "\t\t\n"
-                                          ++ showOp (Oper (tail h) a)
-                  | otherwise           = (show . head) h ++ "\t\t" ++ (show . head) a
-                                          ++ "\n" ++ showOp (Oper (tail h) (tail a))
+showOpS :: Int -> Operations -> String
+showOpS n (Oper h a) | null h && null a    = []
+                     | null h              = "step " ++ show n ++ "\t\t"
+                                             ++ "\t\t" ++ (showH . head) a ++ "\n"
+                                             ++ showOpS (n + 1) (Oper h (tail a))
+                     | null a              = "step " ++ show n ++ "\t\t"
+                                             ++ (showH . head) h ++ "\t\t\n"
+                                             ++ showOpS (n + 1) (Oper (tail h) a)
+                     | otherwise           = "step " ++ show n ++ "\t\t"
+                                             ++ (showH . head) h ++ "\t\t" ++ (showH . head) a
+                                             ++ "\n" ++ showOpS (n + 1) (Oper (tail h) (tail a))
 
 instance Show Operations where
-    show (Oper h a)    = "P1\t\t\t\tP2\n" ++ showOp (Oper (reverse h) (reverse a))
+    show (Oper h a)    = "\t\t\tP1\t\t\t\tP2\n" ++ showOpS 0 (Oper (reverse h) (reverse a))
 
 backWardRegret :: Operations -> Operations
 backWardRegret (Oper h a) | null h && null a    = Oper [] []
