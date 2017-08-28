@@ -33,6 +33,20 @@ blankLine    = Line $ replicate size Nothing
 blankBoard :: Board
 blankBoard    = Board $ replicate size blankLine
 
+{- this is for useage, for the opening of the game -}
+
+boardInit :: Board
+boardInit    = Board $ replicate 3 blankLine
+                    ++ [ Line $ replicate 3 Nothing
+                         ++ [ Just Hand { loc = (4, 4), clr = White }
+                            , Just Hand { loc = (4, 5), clr = Black } ]
+                         ++ replicate 3 Nothing
+                       , Line $ replicate 3 Nothing
+                         ++ [ Just Hand { loc = (5, 4), clr = Black }
+                            , Just Hand { loc = (5, 5), clr = White } ]
+                         ++ replicate 3 Nothing ]
+                    ++ replicate 3 blankLine
+
 searchPriority :: (Int, Int) -> Int
 searchPriority (row, col)    = ((!! reverseData row) . (!! reverseData col))
                                [ [100, -5, 10, 5]
@@ -51,6 +65,8 @@ dirVec    = [ (-1, -1), (-1, 1), (-1, 0), (1, 0)
 pairOper :: (a -> b -> c) -> (a, a) -> (b, b) -> (c, c)
 pairOper f (va, vb) (vc, vd)    = (f va vc, f vb vd)
 
+{- direction search module -}
+
 oneDirHSearch :: Location -> Vector -> [Location]
 oneDirHSearch l v | isInsidePlate l    = l : oneDirHSearch (pairOper (+) l v) v
                   | otherwise          = []
@@ -62,12 +78,14 @@ oneDirectionSearch l v | null $ tail $ oneDirHSearch l v    = Nothing
 eightDirs :: Location -> [Maybe [Location]]
 eightDirs l    = oneDirectionSearch l <$> dirVec
 
-origEightDirs :: Location -> (Location, [Maybe [Location]])
-origEightDirs l    = (l, eightDirs l)
+origEightDirs :: Location -> (Location, [Location])
+origEightDirs l    = (l, eightDirs l >>= DM.fromMaybe [])
+
+{- color search module -}
 
 colorSearchBlockM :: Color -> Block -> Maybe Location
 colorSearchBlockM c b | Just c == retColor b    = retLocation b
-                        | otherwise               = Nothing
+                      | otherwise               = Nothing
 
 colorSearchBlock :: Color -> Block -> [Location]
 colorSearchBlock c b | DM.isJust $ colorSearchBlockM c b    = [DM.fromJust $ retLocation b]
