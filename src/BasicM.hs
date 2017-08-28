@@ -21,6 +21,9 @@ instance Show Color where
 retColor :: Maybe Hand -> Maybe Color
 retColor h    = h >>= \Hand { loc = _, clr = c } -> Just c
 
+retLocation :: Maybe Hand -> Maybe Location
+retLocation h    = h >>= \Hand { loc = l, clr = _ } -> Just l
+
 negnate :: Maybe Color -> Maybe Color
 negnate (Just Next)    = Nothing
 negnate color          = color >>= \x -> if x == White then Just Black else Just White

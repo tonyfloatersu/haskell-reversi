@@ -1,6 +1,7 @@
 module BoardM where
 
 import           BasicM
+import qualified Data.Maybe as DM
 import           Control.Monad.ST
 import qualified Data.Map as M
 import qualified Data.List as L
@@ -60,3 +61,20 @@ oneDirectionSearch l v | null $ tail $ oneDirHSearch l v    = Nothing
 
 eightDirs :: Location -> [Maybe [Location]]
 eightDirs l    = oneDirectionSearch l <$> dirVec
+
+origEightDirs :: Location -> (Location, [Maybe [Location]])
+origEightDirs l    = (l, eightDirs l)
+
+colorSearchBlockM :: Color -> Block -> Maybe Location
+colorSearchBlockM c b | Just c == retColor b    = retLocation b
+                        | otherwise               = Nothing
+
+colorSearchBlock :: Color -> Block -> [Location]
+colorSearchBlock c b | DM.isJust $ colorSearchBlockM c b    = [DM.fromJust $ retLocation b]
+                     | otherwise                            = []
+
+colorSearchLine :: Color -> Line -> [Location]
+colorSearchLine c (Line ls)    = ls >>= colorSearchBlock c
+
+colorSearchBoard :: Color -> Board -> [Location]
+colorSearchBoard c (Board lsls)    = lsls >>= colorSearchLine c
