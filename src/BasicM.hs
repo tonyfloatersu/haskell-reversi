@@ -18,10 +18,12 @@ data Color = White | Black | Next
 instance Show Color where
     show c    = [ "O", "X", "*" ] !! fromEnum c
 
-negnate :: Color -> Color
-negnate c | c == White    = Black
-          | c == Black    = White
-          | otherwise     = Next
+retColor :: Maybe Hand -> Maybe Color
+retColor h    = h >>= \Hand { loc = _, clr = c } -> Just c
+
+negnate :: Maybe Color -> Maybe Color
+negnate (Just Next)    = Nothing
+negnate color          = color >>= \x -> if x == White then Just Black else Just White
 
 type Location = ( Int, Int )
 
@@ -43,9 +45,7 @@ showH _           = " "
 
 prompt :: String -> (String -> Bool) -> IO String
 prompt command judgef    = putStrLn command >> getLine >>=
-                           \x -> if judgef x
-                                 then return x
-                                 else prompt command judgef
+                           \x -> if judgef x then return x else prompt command judgef
 
 modeChoice :: String
 modeChoice    = "\nFirst please choose game mode: PVE (1) or PVP (2)"
