@@ -37,15 +37,15 @@ blankBoard    = Board $ replicate size blankLine
 
 boardInit :: Board
 boardInit    = Board $ replicate 3 blankLine
-                    ++ [ Line $ replicate 3 Nothing
-                         ++ [ Just Hand { loc = (4, 4), clr = White }
-                            , Just Hand { loc = (4, 5), clr = Black } ]
-                         ++ replicate 3 Nothing
-                       , Line $ replicate 3 Nothing
-                         ++ [ Just Hand { loc = (5, 4), clr = Black }
-                            , Just Hand { loc = (5, 5), clr = White } ]
-                         ++ replicate 3 Nothing ]
-                    ++ replicate 3 blankLine
+                       ++ [ Line $ replicate 3 Nothing
+                                   ++ [ Just Hand { loc = (4, 4), clr = White }
+                                      , Just Hand { loc = (4, 5), clr = Black } ]
+                                   ++ replicate 3 Nothing
+                          , Line $ replicate 3 Nothing
+                                   ++ [ Just Hand { loc = (5, 4), clr = Black }
+                                      , Just Hand { loc = (5, 5), clr = White } ]
+                                   ++ replicate 3 Nothing ]
+                       ++ replicate 3 blankLine
 
 searchPriority :: (Int, Int) -> Int
 searchPriority (row, col)    = ((!! reverseData row) . (!! reverseData col))
@@ -78,8 +78,11 @@ oneDirectionSearch l v | null $ tail $ oneDirHSearch l v    = Nothing
 eightDirs :: Location -> [Maybe [Location]]
 eightDirs l    = oneDirectionSearch l <$> dirVec
 
-origEightDirs :: Location -> (Location, [Location])
-origEightDirs l    = (l, eightDirs l >>= DM.fromMaybe [])
+origEightDirs :: Location -> (Location, [[Location]])
+origEightDirs l    = (l, DM.fromMaybe [] <$> eightDirs l)
+
+origEightDirsSet :: Location -> (Location, [Location])
+origEightDirsSet l    = (l, eightDirs l >>= DM.fromMaybe [])
 
 {- color search module -}
 
@@ -96,3 +99,30 @@ colorSearchLine c (Line ls)    = ls >>= colorSearchBlock c
 
 colorSearchBoard :: Color -> Board -> [Location]
 colorSearchBoard c (Board lsls)    = lsls >>= colorSearchLine c
+
+locToSituation :: Location -> Board -> Maybe Hand
+locToSituation l@ (_, lb) b    = (!! lb) $ locToLine l b
+    where locToLine :: Location -> Board -> [Maybe Hand]
+          locToLine (loa, _) (Board bs)    = (\(Line lis) -> lis) $ bs !! loa
+
+reversiLaw :: Color -> [Maybe Hand] -> [Location]
+reversiLaw    = undefined
+
+ifMatch :: [Maybe Hand] -> [Location]
+ifMatch ls | DM.isNothing $ last ls    = []
+           | otherwise                 = undefined
+    where headCol :: Color
+          headCol    = DM.fromJust $ retColor $ head ls
+
+findNextByArray :: Hand -> Board -> [Location] -> [Location]
+findNextByArray h@ Hand { loc = l, clr = c } b@ (Board bs) ls    = undefined
+
+findNextByHand :: Hand -> Board -> [[Location]] -> [Location]
+findNextByHand h bd ls    = findNextByArray h bd <$> ls >>= undefined
+
+findNext :: Color -> Board -> [Location]
+findNext c b    = undefined
+    where colLocations :: [Location]
+          colLocations    = colorSearchBoard c b
+          potentialVec :: [(Location, [[Location]])]
+          potentialVec    = origEightDirs <$> colLocations
