@@ -27,6 +27,9 @@ negnate color          = color >>= \x -> if x == White then Just Black else Just
 
 type Location = ( Int, Int )
 
+isInsidePlate :: Location -> Bool
+isInsidePlate (a, b)    = and $ [(< size), (>= 0)] <*> [a, b]
+
 data Hand = Hand { loc :: Location
                  , clr :: Color }
 

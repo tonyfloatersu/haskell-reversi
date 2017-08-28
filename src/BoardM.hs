@@ -41,6 +41,22 @@ searchPriority (row, col)    = ((!! reverseData row) . (!! reverseData col))
     where reverseData :: Int -> Int
           reverseData x    = if x > 3 then 7 - x else x
 
-dirVec :: [(Int, Int)]
+type Vector = (Int, Int)
+
+dirVec :: [Vector]
 dirVec    = [ (-1, -1), (-1, 1), (-1, 0), (1, 0)
             , (1, 1), (1, -1), (0, 1), (0, -1) ]
+
+pairOper :: (a -> b -> c) -> (a, a) -> (b, b) -> (c, c)
+pairOper f (va, vb) (vc, vd)    = (f va vc, f vb vd)
+
+oneDirHSearch :: Location -> Vector -> [Location]
+oneDirHSearch l v | isInsidePlate l    = l : oneDirHSearch (pairOper (+) l v) v
+                  | otherwise          = []
+
+oneDirectionSearch :: Location -> Vector -> Maybe [Location]
+oneDirectionSearch l v | null $ tail $ oneDirHSearch l v    = Nothing
+                       | otherwise                          = Just $ tail $ oneDirHSearch l v
+
+eightDirs :: Location -> [Maybe [Location]]
+eightDirs l    = oneDirectionSearch l <$> dirVec
