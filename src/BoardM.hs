@@ -2,6 +2,7 @@ module BoardM where
 
 import           BasicM
 import qualified Data.Maybe as DM
+import           Control.Applicative ( ZipList (..), getZipList )
 import           Control.Monad.ST
 import qualified Data.Map as M
 import qualified Data.List as L
@@ -52,9 +53,9 @@ searchPriority (row, col)    = ((!! reverseData row) . (!! reverseData col))
                                [ [100, -5, 10, 5]
                                , [-5, -50, 1, 1]
                                , [10, 1, 3, 2]
-                               , [5, 1, 2, 1] ]
-    where reverseData :: Int -> Int
-          reverseData x    = if x > 3 then 7 - x else x
+                               , [5, 1, 2, 1] ] where
+    reverseData :: Int -> Int
+    reverseData x    = if x > 3 then 7 - x else x
 
 type Vector = (Int, Int)
 
@@ -101,21 +102,36 @@ colorSearchBoard :: Color -> Board -> [Location]
 colorSearchBoard c (Board lsls)    = lsls >>= colorSearchLine c
 
 locToSituation :: Location -> Board -> Maybe Hand
-locToSituation l@ (_, lb) b    = (!! lb) $ locToLine l b
-    where locToLine :: Location -> Board -> [Maybe Hand]
-          locToLine (loa, _) (Board bs)    = (\(Line lis) -> lis) $ bs !! loa
+locToSituation l@ (_, lb) b    = (!! lb) $ locToLine l b where
+    locToLine :: Location -> Board -> [Maybe Hand]
+    locToLine (loa, _) (Board bs)    = (\(Line lis) -> lis) $ bs !! loa
 
 locForNext :: Location -> Board -> [Location]
-locForNext l b    = undefined
-    where currentHand          = DM.fromJust $ locToSituation l b          :: Hand
-          currentColor         = DM.fromJust $ retColor $ Just currentHand :: Color
-          eightDirsLocOrig     = (\x -> ((:) <$> fst) x <$> snd x)
-                                  . origEightDirs $ l                      :: [[Location]]
-          eightDirsHandOrig    = (<$>) (`locToSituation` boardInit)
-                                  <$> eightDirsLocOrig                     :: [[Maybe Hand]]
+locForNext l b        = undefined
+    where crtHand     = DM.fromJust $ locToSituation l b        :: Hand
+          crtColor    = DM.fromJust $ retColor $ Just crtHand   :: Color
+          edsLocOg    = (\x -> ((:) <$> fst) x <$> snd x)
+                         . origEightDirs $ l                    :: [[Location]]
+          edsHdOg     = (<$>) (`locToSituation` b) <$> edsLocOg :: [[Maybe Hand]]
+          edHLO       = uncurry zip <$> zip edsLocOg edsHdOg    :: [[(Location, Maybe Hand)]]
+
+unitCheck :: Maybe Color -> (Location, Maybe Hand) -> [(Location, Maybe Hand)]
+unitCheck c (loca, hm) | DM.isNothing c    = [ (loca, hm) | DM.isNothing hm ]
+                       | otherwise         = [ (loca, hm) | c == retColor hm ]
+
+arrayCheck :: [(Location, Maybe Hand)] -> [(Location, Maybe Hand)]
+arrayCheck []          = []
+arrayCheck (x : xs) | length elimneg == length xs    = []
+                    | null elimneg                   = []
+                    | otherwise                      = unitCheck Nothing (head elimneg)
+    where origColor    = retColor $ snd x :: Maybe Color
+          elimneg      = dropWhile (not . null . unitCheck (negnate origColor))
+                                    xs    :: [(Location, Maybe Hand)]
 
 {-
 
+          aryCheck :: [(Location, Maybe Hand)] -> [(Location, Maybe Hand)]
+          aryCheck    = undefined
 reversiLaw :: Color -> [Maybe Hand] -> [Location]
 reversiLaw    = undefined
 
