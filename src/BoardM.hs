@@ -2,10 +2,6 @@ module BoardM where
 
 import           BasicM
 import qualified Data.Maybe as DM
-import           Control.Applicative ( ZipList (..), getZipList )
-import           Control.Monad.ST
-import qualified Data.Map as M
-import qualified Data.List as L
 
 type Block = Maybe Hand
 
@@ -120,10 +116,11 @@ unitCheck c (loca, hm) | DM.isNothing c    = [ (loca, hm) | DM.isNothing hm ]
                        | otherwise         = [ (loca, hm) | c == retColor hm ]
 
 arrayCheck :: [(Location, Maybe Hand)] -> [(Location, Maybe Hand)]
-arrayCheck []                                        = []
-arrayCheck (x : xs) | length elimneg == length xs    = []
-                    | null elimneg                   = []
-                    | otherwise                      = unitCheck Nothing (head elimneg)
-    where origColor    = retColor $ snd x :: Maybe Color
-          elimneg      = dropWhile (not . null . unitCheck (negnate origColor))
-                                    xs    :: [(Location, Maybe Hand)]
+arrayCheck []                      = []
+arrayCheck (x : xs) | condition    = []
+                    | otherwise    = unitCheck Nothing (head elimneg) where
+    origColor                      = retColor $ snd x :: Maybe Color
+    elimneg                        = dropWhile (not . null . unitCheck (negnate origColor))
+                                                xs    :: [(Location, Maybe Hand)]
+    condition                      = length elimneg == length xs
+                                     || null elimneg  :: Bool
