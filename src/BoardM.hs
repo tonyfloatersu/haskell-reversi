@@ -105,6 +105,17 @@ locToSituation l@ (_, lb) b    = (!! lb) $ locToLine l b
     where locToLine :: Location -> Board -> [Maybe Hand]
           locToLine (loa, _) (Board bs)    = (\(Line lis) -> lis) $ bs !! loa
 
+locForNext :: Location -> Board -> [Location]
+locForNext l b    = undefined
+    where currentHand      = DM.fromJust $ locToSituation l b             :: Hand
+          currentColor     = DM.fromJust $ retColor $ Just currentHand    :: Color
+          eightDirsOrig    = (\x -> ((:) <$> fst) x <$> snd x)
+                              . origEightDirs $ l                         :: [[Location]]
+
+
+{-
+
+
 reversiLaw :: Color -> [Maybe Hand] -> [Location]
 reversiLaw    = undefined
 
@@ -126,3 +137,5 @@ findNext c b    = undefined
           colLocations    = colorSearchBoard c b
           potentialVec :: [(Location, [[Location]])]
           potentialVec    = origEightDirs <$> colLocations
+
+-}
