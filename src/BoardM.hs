@@ -110,11 +110,11 @@ colorForNext :: Color -> Board -> [(Location, Maybe Hand)]
 colorForNext c b    = uniqueList $ concat $ flip locForNext b <$> colorSearchBoard c b
 
 locForNext :: Location -> Board -> [(Location, Maybe Hand)]
-locForNext l b        = concat $ arrayCheck <$> edHLO
-    where edsLocOg    = (\x -> ((:) <$> fst) x <$> snd x)
-                         . origEightDirs $ l                    :: [[Location]]
-          edsHdOg     = (<$>) (`locToSituation` b) <$> edsLocOg :: [[Maybe Hand]]
-          edHLO       = uncurry zip <$> zip edsLocOg edsHdOg    :: [[(Location, Maybe Hand)]]
+locForNext l b        = concat $ arrayCheck <$> edHLO where
+     edsLocOg    = (\x -> ((:) <$> fst) x <$> snd x)
+                    . origEightDirs $ l                    :: [[Location]]
+     edsHdOg     = (<$>) (`locToSituation` b) <$> edsLocOg :: [[Maybe Hand]]
+     edHLO       = uncurry zip <$> zip edsLocOg edsHdOg    :: [[(Location, Maybe Hand)]]
 
 unitCheck :: Maybe Color -> (Location, Maybe Hand) -> [(Location, Maybe Hand)]
 unitCheck c (loca, hm) | DM.isNothing c    = [ (loca, hm) | DM.isNothing hm ]
@@ -129,3 +129,23 @@ arrayCheck (x : xs) | condition    = []
                                                 xs    :: [(Location, Maybe Hand)]
     condition                      = length elimneg == length xs
                                      || null elimneg  :: Bool
+
+{- then we start the modify part -}
+
+takeLocation :: [(Location, Maybe Hand)] -> [Location]
+takeLocation    = (<$>) fst
+
+modify :: Board -> Maybe Color -> Location -> Board
+modify (Board bs) cgTo (l1, l2)       = Board $ take l1 bs
+                                                ++ [ Line $ take l2 ls
+                                                            ++ [changeHand]
+                                                            ++ drop (l2 + 1) ls ]
+                                                ++ drop (l1 + 1) bs where
+    (Line ls)                         = bs !! l1 :: Line
+    changeHand | DM.isNothing cgTo    = Nothing
+               | otherwise            = Just Hand { loc = (l1, l2)
+                                                  , clr = DM.fromJust cgTo }
+
+modifyTobe :: Color -> Board -> Board
+modifyTobe c b    = foldr (\lc brd -> modify brd (Just Next) lc)
+                           boardInit $ takeLocation $ colorForNext c b
