@@ -39,12 +39,12 @@ blankBoard    = Board $ replicate size blankLine
 boardInit :: Board
 boardInit    = Board $ replicate 3 blankLine
                        ++ [ Line $ replicate 3 Nothing
-                                   ++ [ Just Hand { loc = (4, 4), clr = White }
-                                      , Just Hand { loc = (4, 5), clr = Black } ]
+                                   ++ [ Just Hand { loc = (3, 3), clr = White }
+                                      , Just Hand { loc = (3, 4), clr = Black } ]
                                    ++ replicate 3 Nothing
                           , Line $ replicate 3 Nothing
-                                   ++ [ Just Hand { loc = (5, 4), clr = Black }
-                                      , Just Hand { loc = (5, 5), clr = White } ]
+                                   ++ [ Just Hand { loc = (4, 3), clr = Black }
+                                      , Just Hand { loc = (4, 4), clr = White } ]
                                    ++ replicate 3 Nothing ]
                        ++ replicate 3 blankLine
 
@@ -120,38 +120,10 @@ unitCheck c (loca, hm) | DM.isNothing c    = [ (loca, hm) | DM.isNothing hm ]
                        | otherwise         = [ (loca, hm) | c == retColor hm ]
 
 arrayCheck :: [(Location, Maybe Hand)] -> [(Location, Maybe Hand)]
-arrayCheck []          = []
+arrayCheck []                                        = []
 arrayCheck (x : xs) | length elimneg == length xs    = []
                     | null elimneg                   = []
                     | otherwise                      = unitCheck Nothing (head elimneg)
     where origColor    = retColor $ snd x :: Maybe Color
           elimneg      = dropWhile (not . null . unitCheck (negnate origColor))
                                     xs    :: [(Location, Maybe Hand)]
-
-{-
-
-          aryCheck :: [(Location, Maybe Hand)] -> [(Location, Maybe Hand)]
-          aryCheck    = undefined
-reversiLaw :: Color -> [Maybe Hand] -> [Location]
-reversiLaw    = undefined
-
-ifMatch :: [Maybe Hand] -> [Location]
-ifMatch ls | DM.isNothing $ last ls    = []
-           | otherwise                 = undefined
-    where headCol :: Color
-          headCol    = DM.fromJust $ retColor $ head ls
-
-findNextByArray :: Hand -> Board -> [Location] -> [Location]
-findNextByArray h@ Hand { loc = l, clr = c } b@ (Board bs) ls    = undefined
-
-findNextByHand :: Hand -> Board -> [[Location]] -> [Location]
-findNextByHand h bd ls    = findNextByArray h bd <$> ls >>= undefined
-
-findNext :: Color -> Board -> [Location]
-findNext c b    = undefined
-    where colLocations :: [Location]
-          colLocations    = colorSearchBoard c b
-          potentialVec :: [(Location, [[Location]])]
-          potentialVec    = origEightDirs <$> colLocations
-
--}
