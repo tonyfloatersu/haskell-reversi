@@ -98,15 +98,20 @@ colorSearchBoard :: Color -> Board -> [Location]
 colorSearchBoard c (Board lsls)    = lsls >>= colorSearchLine c
 
 locToSituation :: Location -> Board -> Maybe Hand
-locToSituation l@ (_, lb) b    = (!! lb) $ locToLine l b where
+locToSituation l@ (_, lb) b          = (!! lb) $ locToLine l b where
     locToLine :: Location -> Board -> [Maybe Hand]
     locToLine (loa, _) (Board bs)    = (\(Line lis) -> lis) $ bs !! loa
 
-locForNext :: Location -> Board -> [Location]
-locForNext l b        = undefined
-    where crtHand     = DM.fromJust $ locToSituation l b        :: Hand
-          crtColor    = DM.fromJust $ retColor $ Just crtHand   :: Color
-          edsLocOg    = (\x -> ((:) <$> fst) x <$> snd x)
+uniqueList :: Eq a => [a] -> [a]
+uniqueList []          = []
+uniqueList (x : xs)    = x : uniqueList (filter (/= x) xs)
+
+colorForNext :: Color -> Board -> [(Location, Maybe Hand)]
+colorForNext c b    = uniqueList $ concat $ flip locForNext b <$> colorSearchBoard c b
+
+locForNext :: Location -> Board -> [(Location, Maybe Hand)]
+locForNext l b        = concat $ arrayCheck <$> edHLO
+    where edsLocOg    = (\x -> ((:) <$> fst) x <$> snd x)
                          . origEightDirs $ l                    :: [[Location]]
           edsHdOg     = (<$>) (`locToSituation` b) <$> edsLocOg :: [[Maybe Hand]]
           edHLO       = uncurry zip <$> zip edsLocOg edsHdOg    :: [[(Location, Maybe Hand)]]
