@@ -107,14 +107,14 @@ locToSituation l@ (_, lb) b    = (!! lb) $ locToLine l b
 
 locForNext :: Location -> Board -> [Location]
 locForNext l b    = undefined
-    where currentHand      = DM.fromJust $ locToSituation l b             :: Hand
-          currentColor     = DM.fromJust $ retColor $ Just currentHand    :: Color
-          eightDirsOrig    = (\x -> ((:) <$> fst) x <$> snd x)
-                              . origEightDirs $ l                         :: [[Location]]
-
+    where currentHand          = DM.fromJust $ locToSituation l b          :: Hand
+          currentColor         = DM.fromJust $ retColor $ Just currentHand :: Color
+          eightDirsLocOrig     = (\x -> ((:) <$> fst) x <$> snd x)
+                                  . origEightDirs $ l                      :: [[Location]]
+          eightDirsHandOrig    = (<$>) (`locToSituation` boardInit)
+                                  <$> eightDirsLocOrig                     :: [[Maybe Hand]]
 
 {-
-
 
 reversiLaw :: Color -> [Maybe Hand] -> [Location]
 reversiLaw    = undefined
