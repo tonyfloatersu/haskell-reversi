@@ -167,11 +167,10 @@ boardChanges b c    = giveChanges b <$> posbFuture where
 statColorChanges :: Board -> Color -> [(Location, [Maybe Hand])]
 statColorChanges b c    = zip (fst <$> colorForNext c b) $ boardChanges b c
 
-modifyH :: Maybe Hand -> Board -> Board
-modifyH Nothing b                                     = b
-modifyH h@ (Just Hand { loc = (y, x), clr = c }) b    = undefined where
-    posbLocs                                          = fst <$> statColorChanges b
-                                                        (DM.fromJust $ Just c) :: [Location]
-    inpossLoc                                         = (y, x) `elem` posbLocs :: Bool
-    changes | not inpossLoc                           = []                     :: [Maybe Hand]
-            | otherwise                               = undefined
+modifyH :: Hand -> Board -> Board
+modifyH h@ Hand { loc = _, clr = c } b    = foldr fragfunc b locats where
+    change                                = Just h : giveChanges b h :: [Maybe Hand]
+    locats                                = DM.fromJust
+                                            . retLocation <$> change :: [Location]
+    fragfunc :: Location -> Board -> Board
+    fragfunc lc brd                       = modify brd (Just c) lc
