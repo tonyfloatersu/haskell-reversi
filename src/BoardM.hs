@@ -151,16 +151,27 @@ modifyTobe c b    = foldr (\lc brd -> modify brd (Just Next) lc)
                            boardInit $ takeLocation $ colorForNext c b
 
 giveChanges :: Board -> Hand -> [Maybe Hand]
-giveChanges b h@ Hand { loc = _, clr = c }    = concat changeDirsHands where
-    ehtDrsTemp                                = snd . origEightDirs . DM.fromJust
-                                                . retLocation . Just $ h :: [[Location]]
-    ehtDrsHands                               = (<$>) (`locToSituation` b)
-                                                 <$> ehtDrsTemp          :: [[Maybe Hand]]
-    colorTake                                 = negnate (Just c)         :: Maybe Color
-    changeDirsHands                           = takeWhile (\x -> retColor x == colorTake)
-                                                 <$> ehtDrsHands         :: [[Maybe Hand]]
+giveChanges b Hand { loc = l, clr = c }    = concat changeDirsHands where
+    ehtDrsTemp                             = snd . origEightDirs $ l  :: [[Location]]
+    ehtDrsHands                            = (<$>) (`locToSituation` b)
+                                              <$> ehtDrsTemp          :: [[Maybe Hand]]
+    colorTake                              = negnate (Just c)         :: Maybe Color
+    changeDirsHands                        = takeWhile (\x -> retColor x == colorTake)
+                                              <$> ehtDrsHands         :: [[Maybe Hand]]
 
 boardChanges :: Board -> Color -> [[Maybe Hand]]
 boardChanges b c    = giveChanges b <$> posbFuture where
-    locations       = fst <$> colorForNext c b                       :: [Location]
-    posbFuture      = (\l -> Hand { loc = l, clr = c}) <$> locations :: [Hand]
+    locations       = fst <$> colorForNext c b                        :: [Location]
+    posbFuture      = (\l -> Hand { loc = l, clr = c }) <$> locations :: [Hand]
+
+statColorChanges :: Board -> Color -> [(Location, [Maybe Hand])]
+statColorChanges b c    = zip (fst <$> colorForNext c b) $ boardChanges b c
+
+modifyH :: Maybe Hand -> Board -> Board
+modifyH Nothing b                                     = b
+modifyH h@ (Just Hand { loc = (y, x), clr = c }) b    = undefined where
+    posbLocs                                          = fst <$> statColorChanges b
+                                                        (DM.fromJust $ Just c) :: [Location]
+    inpossLoc                                         = (y, x) `elem` posbLocs :: Bool
+    changes | not inpossLoc                           = []                     :: [Maybe Hand]
+            | otherwise                               = undefined
