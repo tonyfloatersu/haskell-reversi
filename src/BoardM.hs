@@ -151,13 +151,22 @@ modifyTobe c b    = foldr (\lc brd -> modify brd (Just Next) lc)
                            boardInit $ takeLocation $ colorForNext c b
 
 giveChanges :: Board -> Hand -> [Maybe Hand]
-giveChanges b Hand { loc = l, clr = c }    = concat changeDirsHands where
+giveChanges b Hand { loc = l, clr = c }    = concat changeDirRes where
     ehtDrsTemp                             = snd . origEightDirs $ l  :: [[Location]]
     ehtDrsHands                            = (<$>) (`locToSituation` b)
                                               <$> ehtDrsTemp          :: [[Maybe Hand]]
     colorTake                              = negnate (Just c)         :: Maybe Color
+    tails                                  = dropWhile (\x -> retColor x == colorTake)
+                                              <$> ehtDrsHands         :: [[Maybe Hand]]
+    smalljudge :: [Maybe Hand] -> Bool
+    smalljudge []                          = False
+    smalljudge (x : _) | DM.isNothing x    = False
+                       | otherwise         = Just c == retColor x
+    smallresult                            = smalljudge <$> tails     :: [Bool]
     changeDirsHands                        = takeWhile (\x -> retColor x == colorTake)
                                               <$> ehtDrsHands         :: [[Maybe Hand]]
+    changeDirRes                           = (\(x, y) -> if x then y else [])
+                                              <$> zip smallresult changeDirsHands
 
 boardChanges :: Board -> Color -> [[Maybe Hand]]
 boardChanges b c    = giveChanges b <$> posbFuture where
