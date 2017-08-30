@@ -148,7 +148,7 @@ modify (Board bs) cgTo (l1, l2)       = Board $ take l1 bs
 
 modifyTobe :: Color -> Board -> Board
 modifyTobe c b    = foldr (\lc brd -> modify brd (Just Next) lc)
-                           boardInit $ takeLocation $ colorForNext c b
+                           b $ takeLocation $ colorForNext c b
 
 giveChanges :: Board -> Hand -> [Maybe Hand]
 giveChanges b Hand { loc = l, clr = c }    = concat changeDirRes where
@@ -183,3 +183,25 @@ modifyH h@ Hand { loc = _, clr = c } b    = foldr fragfunc b locats where
                                              <$> change              :: [Location]
     fragfunc :: Location -> Board -> Board
     fragfunc lc brd                       = modify brd (Just c) lc
+
+varChange :: (Int, Int) -> Char -> Block
+varChange (y, x) c | c == 'O'     = Just Hand { loc = (y, x), clr = White }
+                   | c == 'X'     = Just Hand { loc = (y, x), clr = Black }
+                   | c == ' '     = Nothing
+                   | otherwise    = error "WTF!!"
+
+lineTrans :: Int -> String -> Line
+lineTrans i str    = Line $ (\x -> varChange (i, x) (str !! x)) <$> [0 .. 7]
+
+testingFunc :: [String] -> Board
+testingFunc xs    = Board $ (\x -> lineTrans x (xs !! x)) <$> [0 .. 7]
+
+prototype :: [String]
+prototype    = [ "        "
+               , "        "
+               , "    X   "
+               , "  OOX   "
+               , "   OX   "
+               , "        "
+               , "        "
+               , "        " ]
