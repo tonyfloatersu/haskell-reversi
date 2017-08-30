@@ -184,6 +184,8 @@ modifyH h@ Hand { loc = _, clr = c } b    = foldr fragfunc b locats where
     fragfunc :: Location -> Board -> Board
     fragfunc lc brd                       = modify brd (Just c) lc
 
+{- used for debug not for real useage -}
+
 varChange :: (Int, Int) -> Char -> Block
 varChange (y, x) c | c == 'O'     = Just Hand { loc = (y, x), clr = White }
                    | c == 'X'     = Just Hand { loc = (y, x), clr = Black }
@@ -200,8 +202,8 @@ prototype :: [String]
 prototype    = [ "        "
                , "        "
                , "    X   "
-               , "  OOX   "
-               , "   OX   "
-               , "        "
-               , "        "
+               , "  OOXX  "
+               , "   OXOX "
+               , "    X   "
+               , "    X   "
                , "        " ]
