@@ -170,7 +170,7 @@ statColorChanges b c    = zip (fst <$> colorForNext c b) $ boardChanges b c
 modifyH :: Hand -> Board -> Board
 modifyH h@ Hand { loc = _, clr = c } b    = foldr fragfunc b locats where
     change                                = Just h : giveChanges b h :: [Maybe Hand]
-    locats                                = DM.fromJust
-                                            . retLocation <$> change :: [Location]
+    locats                                = DM.fromJust . retLocation
+                                             <$> change              :: [Location]
     fragfunc :: Location -> Board -> Board
     fragfunc lc brd                       = modify brd (Just c) lc
