@@ -207,3 +207,18 @@ prototype    = [ "        "
                , "    X   "
                , "    X   "
                , "        " ]
+
+data Situation = Situation { black :: Int
+                           , white :: Int }
+
+instance Show Situation where
+    show Situation { black = b, white = w }    = "current situation: " ++ "\n"
+                                                  ++ "black: " ++ show b ++ "\t"
+                                                  ++ "white: " ++ show w
+                                                  ++ if b > w
+                                                     then "\nblack number is greater"
+                                                     else "\nwhite number is greater"
+
+provideSituation :: Board -> Situation
+provideSituation b    = Situation { black = length $ colorSearchBoard Black b
+                                  , white = length $ colorSearchBoard White b }
