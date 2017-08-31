@@ -49,9 +49,10 @@ showH :: Maybe Hand -> String
 showH (Just h)    = show h
 showH _           = " "
 
-prompt :: String -> (String -> Bool) -> IO String
-prompt command judgef    = putStrLn command >> getLine >>=
-                           \x -> if judgef x then return x else prompt command judgef
+prompt :: String -> IO a -> (a -> Bool) -> IO a
+prompt command readin judgef    = putStrLn command >> readin >>=
+                                  \x -> if judgef x then return x
+                                        else prompt command readin judgef
 
 modeChoice :: String
 modeChoice    = "\nFirst please choose game mode: PVE (1) or PVP (2)"

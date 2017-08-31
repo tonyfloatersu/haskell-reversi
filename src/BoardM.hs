@@ -222,3 +222,6 @@ instance Show Situation where
 provideSituation :: Board -> Situation
 provideSituation b    = Situation { black = length $ colorSearchBoard Black b
                                   , white = length $ colorSearchBoard White b }
+
+endingJudgement :: Board -> Bool
+endingJudgement b    =  null (colorForNext Black b) || null (colorForNext White b)
