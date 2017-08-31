@@ -1,4 +1,4 @@
-# haskell-reversi
+# haskell-reversi (Currently not finished)
 
 Just a Game for practice Haskell Monad skills.
 
