@@ -4,11 +4,18 @@ import           BoardM
 import           BasicM
 import qualified Data.Maybe as DM
 
-pvp :: IO ()
-pvp    = undefined
+pvp :: Board -> IO ()
+pvp b | endingJudgement b    = return ()
+      | otherwise            = undefined
 
-pvpFunction :: Board -> IO Board
-pvpFunction b    = undefined
+{- first white then black -}
+
+promptChessAndShow :: String -> Color -> Board -> IO Board
+promptChessAndShow pt c b    = modfyJdg where
+    fallCond      = not . null $ colorForNext c b :: Bool
+    locaPrpt      = promptLocation pt $ nextMoveJudge b c :: IO Location
+    handFall      = (\l -> Hand { loc = l, clr = c }) <$> locaPrpt :: IO Hand
+    modfyJdg      = if fallCond then (`modifyH` b) <$> handFall else return b :: IO Board
 
 readLocationMaybe :: IO (Maybe Location)
 readLocationMaybe    = (fst <$>) . DM.listToMaybe
