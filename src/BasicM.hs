@@ -4,13 +4,13 @@ size :: Int
 size    = 8
 
 data PVEPlayer = Computer | Human
-               deriving ( Eq, Enum )
+                 deriving ( Eq, Enum )
 
 instance Show PVEPlayer where
     show p    = [ "AI", "Human" ] !! fromEnum p
 
 data PVPPlayer = Human1 | Human2
-               deriving ( Eq, Enum, Show )
+                 deriving ( Eq, Enum, Show )
 
 data Color = White | Black | Next
              deriving ( Eq, Enum )
